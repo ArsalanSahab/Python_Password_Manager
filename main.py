@@ -1,7 +1,7 @@
 ########## LIBRARIES ############
 
 import sqlite3
-from hashlib import sha256 as cypher
+import hashlib
 import secrets
 
 
@@ -56,8 +56,22 @@ def init_connection():
     
     try : 
         
-        conn.execute('''CREATE TABLE my_passwords (hex TEXT PRIMARY KEY NOT NULL, user_name VARCHAR(255) NOT NULL, website_name VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL);''')
+        conn.execute(''' CREATE TABLE IF NOT EXISTS my_passwords (
+	hex TEXT PRIMARY KEY,
+	user_name VARCHAR(255) NOT NULL,
+	password VARCHAR(255) NOT NULL,
+	website_name TEXT VARCHAR(255) UNIQUE
+);''')
         
+        cursor = conn.execute("SELECT * FROM my_passwords;")
+     
+        for row in cursor :
+            
+            print("Hex = " + row[0])
+            print("UserName = " + row[1])
+            print("Password = " + row[2])
+            print("Website = " + row[3])
+            
     except :
         
          print("Done !")
@@ -65,8 +79,7 @@ def init_connection():
          
 def generate_hex_key(password) :
     
-    return cypher(password.encode('utf-8') + service.lower().encode('utf-8')).hexdigest()
-    
+   return hashlib.md5(password.encode()).hexdigest()    
         
 
 def commands_exec() :
@@ -77,12 +90,16 @@ def commands_exec() :
         user_name = input("Enter Username : ")
         password = input("Enter Password : ")
         website_name = input("Enter website name : ")
-        pass_hex = generate_hex_key(password)
+        pass_hex = str(generate_hex_key(password))
         
         print("Confirmation your values are : user_name : {} password : {} website : {} ".format(user_name, password, website_name))
         
-        conn.execute('''INSERT INTO my_passwords VALUES({pass_hex},{user_name}, {password}, {website_name})'''.format(pass_hex=pass_hex, user_name=user_name, password=password, website_name=website_name))
-        conn.execute('''commit;''')
+       
+        conn.execute('''INSERT INTO my_passwords VALUES(?, ?, ?, ?)''', (pass_hex, user_name, password, website_name))
+        print("Done")
+        conn.execute("SELECT * FROM my_passwords;")
+        
+       
         
     elif int(choice) == 2 :
         conn.execute('''SELECT * FROM my_passwords;''')
@@ -99,14 +116,6 @@ def commands_exec() :
 
     
     
-    
-    
-
-
-
-
-
-
 if __name__ == "__main__" :
     
     conn = sqlite3.connect('passwords.db')
