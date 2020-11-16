@@ -1,10 +1,6 @@
 # Python CLI Password Manager
 A simple Command Line Interface password manager made with Python and SQLite
 
-
-![alt text](https://drive.google.com/file/d/1EmxSZc9H1ha7ExbJX0o7ulpRGYPoeyZ5/view?usp=sharing)
-
-
 ### How to Setup
 
 1. Clone the repository
