@@ -18,6 +18,24 @@ def admin_login() :
         display_main_menu()
     
 
+def display_single_record(user_name, website_name) :
+    
+    cursor = conn.execute('''SELECT hex, user_name, password, website_name FROM my_passwords
+                              
+                                 WHERE user_name = ? AND website_name = ?''', (user_name, website_name))
+        
+    for row in cursor:
+                print()
+                print("Hex_Key = " + row[0])
+                print("Username = " + row[1])
+                print("Password = " + row[2])
+                print("Website Name = " + row[3])
+                
+                
+                
+            
+    
+    
 
 def display_main_menu() :
     
@@ -90,21 +108,69 @@ def commands_exec() :
             
             conn.execute('''INSERT INTO my_passwords VALUES(?, ?, ?, ?)''', (pass_hex, user_name, password, website_name))
             conn.commit()
+            print("Done!")
+            display_commands_menu()
             
         except :
             
-            cursor = conn.execute("SELECT user_name, password from my_passwords")
-            for row in cursor:
-                print("Name = " + row[0])
-                print("Pass = " + row[1])
-            
+            print("Data Already Exists")
+            display_commands_menu()
         
        
         
     elif int(choice) == 2 :
-        conn.execute('''SELECT * FROM my_passwords;''')
+        
+        cursor = conn.execute('''SELECT hex, user_name, password, website_name FROM my_passwords;''')
+        counter = 0
+        for row in cursor:
+                counter = counter + 1
+                print()
+                print("ID = " + str(counter))
+                print("Hex_Key = " + row[0])
+                print("Username = " + row[1])
+                print("Password = " + row[2])
+                print("Website Name = " + row[3])
+                print()
+            
+        display_commands_menu()
+            
     elif int(choice) == 3 :
-        pass
+        
+        user_name = input("Please Enter Username : ")
+        website_name = input("Please Enter Website Name : ")
+        new_pass = input("Enter New Password : ")
+        
+        print()
+        print("-------------------- OLD DETAILS -------------------------")
+        print()
+        
+        display_single_record(user_name, website_name)
+        
+        try :
+            
+            conn.execute(''' 
+                         UPDATE my_passwords
+                         SET password = ?
+                         WHERE user_name = ? AND website_name = ?;
+                         ''', (new_pass, user_name, website_name))
+            conn.commit()
+            
+            print()
+            print("------------------ NEW DETAILS -------------------------")
+            print()
+            
+            display_single_record(user_name, website_name)
+            display_commands_menu()
+            
+        except :
+            
+            print("No Record Found!")
+            display_commands_menu()
+            
+       
+            
+            
+        
     elif int(choice) == 4 :
         pass
     elif int(choice) == 5 :
