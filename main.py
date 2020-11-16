@@ -62,15 +62,7 @@ def init_connection():
 	password VARCHAR(255) NOT NULL,
 	website_name TEXT VARCHAR(255) UNIQUE
 );''')
-        
-        cursor = conn.execute("SELECT * FROM my_passwords;")
-     
-        for row in cursor :
-            
-            print("Hex = " + row[0])
-            print("UserName = " + row[1])
-            print("Password = " + row[2])
-            print("Website = " + row[3])
+       
             
     except :
         
@@ -94,10 +86,18 @@ def commands_exec() :
         
         print("Confirmation your values are : user_name : {} password : {} website : {} ".format(user_name, password, website_name))
         
-       
-        conn.execute('''INSERT INTO my_passwords VALUES(?, ?, ?, ?)''', (pass_hex, user_name, password, website_name))
-        print("Done")
-        conn.execute("SELECT * FROM my_passwords;")
+        try :
+            
+            conn.execute('''INSERT INTO my_passwords VALUES(?, ?, ?, ?)''', (pass_hex, user_name, password, website_name))
+            conn.commit()
+            
+        except :
+            
+            cursor = conn.execute("SELECT user_name, password from my_passwords")
+            for row in cursor:
+                print("Name = " + row[0])
+                print("Pass = " + row[1])
+            
         
        
         
