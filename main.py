@@ -1,10 +1,8 @@
 ########## LIBRARIES ############
 
 import sqlite3
-import hashlib
 import secrets
-
-
+import hashlib
 
 
 def admin_login() :
@@ -16,27 +14,8 @@ def admin_login() :
         exit()
     else :
         display_main_menu()
-    
-
-def display_single_record(user_name, website_name) :
-    
-    cursor = conn.execute('''SELECT hex, user_name, password, website_name FROM my_passwords
-                              
-                                 WHERE user_name = ? AND website_name = ?''', (user_name, website_name))
         
-    for row in cursor:
-                print()
-                print("Hex_Key = " + row[0])
-                print("Username = " + row[1])
-                print("Password = " + row[2])
-                print("Website Name = " + row[3])
-                
-                
-                
-            
-    
-    
-
+        
 def display_main_menu() :
     
     
@@ -48,7 +27,6 @@ def display_main_menu() :
     init_connection()
     print()
     display_commands_menu()
-   
     
     
 def display_commands_menu() :
@@ -64,39 +42,33 @@ def display_commands_menu() :
     print()
     
     commands_exec()
-    
-   
-    
-
-def init_connection():
-    
-   
-    
-    try : 
-        
-        conn.execute(''' CREATE TABLE IF NOT EXISTS my_passwords (
-	hex TEXT PRIMARY KEY,
-	user_name VARCHAR(255) NOT NULL,
-	password VARCHAR(255) NOT NULL,
-	website_name TEXT VARCHAR(255) UNIQUE
-);''')
-       
-            
-    except :
-        
-         print("Done !")
-         
-         
-def generate_hex_key(password) :
-    
-   return hashlib.md5(password.encode()).hexdigest()    
-        
-
+      
 def commands_exec() :
     
     choice = input(("Enter your choice : "))
     
     if int(choice) == 1 :
+        insert_new_record()
+    elif int(choice) == 2 :
+        show_all_records()  
+    elif int(choice) == 3 :
+       update_record()
+    elif int(choice) == 4 :
+        delete_record()
+    elif int(choice) == 5 :
+        conn.close()
+        exit()
+    else :
+        print('Wrong Choice !')
+        display_commands_menu()
+        
+        
+        
+########################## API FUNCTIONS ######################
+
+
+def insert_new_record() :
+    
         user_name = input("Enter Username : ")
         password = input("Enter Password : ")
         website_name = input("Enter website name : ")
@@ -116,10 +88,9 @@ def commands_exec() :
             print("Data Already Exists")
             display_commands_menu()
         
-       
-        
-    elif int(choice) == 2 :
-        
+
+def show_all_records() :
+    
         cursor = conn.execute('''SELECT hex, user_name, password, website_name FROM my_passwords;''')
         counter = 0
         for row in cursor:
@@ -133,9 +104,12 @@ def commands_exec() :
                 print()
             
         display_commands_menu()
-            
-    elif int(choice) == 3 :
-        
+    
+    
+    
+def update_record() :
+    
+    
         user_name = input("Please Enter Username : ")
         website_name = input("Please Enter Website Name : ")
         new_pass = input("Enter New Password : ")
@@ -167,19 +141,83 @@ def commands_exec() :
             print("No Record Found!")
             display_commands_menu()
             
+
+def delete_record() :
+    
+    
+        user_name = input("Enter Username : ")
+        website_name = input("Enter Website Name : ")
+        
+        print()
+        display_single_record(user_name, website_name)
+        print()
+        
+        agreement = input("Are you sure you want to delete the following record ? [y/n] : ")
+        
+        if agreement.lower() == "y":
+            
+            
+            try :
+                
+                conn.execute(''' 
+                            DELETE FROM my_passwords
+                            WHERE user_name = ? AND website_name = ?''', (user_name, website_name))
+                conn.commit()
+                print("Record Deleted !")
+                
+                display_commands_menu()
+            
+            except :
+                
+                print("Record Dose not exist")
+                display_commands_menu()
+                
+                
+        else :
+            
+            display_commands_menu()
+    
+    
+    
+ ############################### UTILITY FUNCTIONS ############################
+ 
+def init_connection():
+    
+   
+    
+    try : 
+        
+        conn.execute(''' CREATE TABLE IF NOT EXISTS my_passwords (
+	hex TEXT PRIMARY KEY,
+	user_name VARCHAR(255) NOT NULL,
+	password VARCHAR(255) NOT NULL,
+	website_name TEXT VARCHAR(255) UNIQUE
+);''')
        
             
-            
+    except :
         
-    elif int(choice) == 4 :
-        pass
-    elif int(choice) == 5 :
-        exit()
-    else :
-        print('Wrong Choice !')
-        display_commands_menu()
-        
+         print("Done !")
+         
+         
+def generate_hex_key(password) :
+    
+   return hashlib.md5(password.encode()).hexdigest()    
 
+
+
+def display_single_record(user_name, website_name) :
+    
+    cursor = conn.execute('''SELECT hex, user_name, password, website_name FROM my_passwords
+                              
+                                 WHERE user_name = ? AND website_name = ?''', (user_name, website_name))
+        
+    for row in cursor:
+                print()
+                print("Hex_Key = " + row[0])
+                print("Username = " + row[1])
+                print("Password = " + row[2])
+                print("Website Name = " + row[3])   
     
     
 if __name__ == "__main__" :
