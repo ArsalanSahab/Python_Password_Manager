@@ -9,7 +9,7 @@ def admin_login() :
     
     admin_login = input("Enter Admin Password : ")
     
-    if admin_login != secrets.ADMIN_PASSWORD:
+    if admin_login != "Password":
         print('Sorry Wrong Password!')
         exit()
     else :
